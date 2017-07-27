@@ -55,7 +55,7 @@ def getsize(fpath):
         return 0
 
 
-def find_larg_files(fpath, n_results=10, **kwargs):
+def find_large_files(fpath, n_results=10, **kwargs):
     ''' Recursively find the largest files in a directory.
     
     return n largest files in a directory tree.
@@ -68,7 +68,7 @@ def find_larg_files(fpath, n_results=10, **kwargs):
     for name in walk(fpath, **kwargs):
         results[name] = getsize(name)
 
-    results = sorted(results.items(), key=operator.itemgetter(1), reversed=1)
+    results = reversed(sorted(results.items(), key=operator.itemgetter(1)))
     for name, size in take(n_results, results):
         yield name, size
 
@@ -88,7 +88,7 @@ def main():
         )
    
     args = parser.parse_args()
-    for name, size in find_larg_files(args.path, n_results=args.results, excludes=args.exclude):
+    for name, size in find_large_files(args.path, n_results=args.results, excludes=args.exclude):
         print name, size
     
 if __name__ == '__main__':
