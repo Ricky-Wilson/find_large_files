@@ -3,7 +3,7 @@
 
 :Example:
 excludes = ['/proc', '/sys', '/dev', '/swapfile']
-find_larg_files('/', n_results=20, excludes=excludes)
+find_large_files('/', n_results=20, excludes=excludes)
 '''
 
 import os
