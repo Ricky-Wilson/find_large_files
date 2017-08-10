@@ -12,6 +12,7 @@ from itertools import islice
 import fnmatch
 import re
 import argparse
+import scandir
 
 
 def take(number, iterable):
@@ -35,7 +36,7 @@ def walk(fpath, **kwargs):
     excludes = kwargs.get('excludes')
     # transform glob patterns to regular expressions
     excludes = r'|'.join([fnmatch.translate(x) for x in excludes]) or r'$.'
-    for root, dirs, files in os.walk(fpath, topdown=1):
+    for root, dirs, files in scandir.walk(fpath):
         # exclude dirs
         if excludes:
             dirs[:] = [os.path.join(root, d) for d in dirs]
