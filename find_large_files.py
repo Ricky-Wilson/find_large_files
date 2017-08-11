@@ -1,9 +1,13 @@
+#!/usr/bin/python
 
-'''Find large files on a linux system.
-
-:Example:
-excludes = ['/proc', '/sys', '/dev', '/swapfile']
-find_large_files('/', n_results=20, excludes=excludes)
+''' Mine filesystem information.
+Features:
+* Recursively find the largest files in a directory. 
+* Recursively list all the symlinks in a directory.
+* Recursively list all duplicates in a directory.
+* Recursively list all empty files in a directory.
+* Recursively list all empty directories in a directory.
+* Recursively list all the files in a directory the have a specified ext.
 '''
 
 # Standard imports.
@@ -21,7 +25,7 @@ import scandir
 # Local project imports.
 from arguments import args
 
-DEFAULT_READSIZE = 4096
+DEFAULT_READSIZE = 1000000
 
 def find_duplicate_files(fpath, read_size=DEFAULT_READSIZE):
     """ Find duplicate files.
@@ -29,7 +33,7 @@ def find_duplicate_files(fpath, read_size=DEFAULT_READSIZE):
 
     index = 0
     unique = {}
-    read_size = 1000000
+    read_size = DEFAULT_READSIZE
 
     for dirpath, dirs, files in scandir.walk(fpath):
         for _file in files:
