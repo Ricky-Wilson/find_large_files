@@ -6,20 +6,50 @@ excludes = ['/proc', '/sys', '/dev', '/swapfile']
 find_large_files('/', n_results=20, excludes=excludes)
 '''
 
+# Standard imports.
 import os
 import operator
 from itertools import islice
 import fnmatch
 import re
-import scandir
-from arguments import args
 import sys
+
+# Third party imports.
+import scandir
+
+# Local project imports.
+from arguments import args
+
+
+def is_empty(fpath):
+    try:
+        return os.stat(fpath).st_size == 0
+    except OSError:
+        pass
+
+
+def find_empty_files(root_dir='.'):
+    """ Find empty files and yield there path.
+    """
+    empty = 0
+    for dirpath, dirs, files in scandir.walk(root_dir):
+        for _file in files:
+            fullpath = os.path.join(dirpath, _file)
+            if is_empty(fullpath):
+                empty += 1
+                yield empty, fullpath
 
 
 def find_empty_dirs(root_dir='.'):
-    for dirpath, dirs, files in  scandir.walk(root_dir):
+    """ Find empty directories and yield there path.
+
+    """
+    empty = 0
+    for dirpath, dirs, files in scandir.walk(root_dir):
         if not dirs and not files:
-            yield dirpath
+            empty += 1
+            yield empty, dirpath
+
 
 def take(number, iterable):
     """Return first n items of the iterable as a list.
@@ -31,7 +61,7 @@ def take(number, iterable):
     return list(islice(iterable, number))
 
 
-def human_size(bytes, units=[' bytes','KB','MB','GB','TB', 'PB', 'EB']):
+def human_size(bytes, units=[' bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB']):
     """ Returns a human readable string reprentation of bytes"""
     return str(bytes) + units[0] if bytes < 1024 else human_size(bytes>>10, units[1:])
 
@@ -53,7 +83,9 @@ def walk(fpath, **kwargs):
             dirs[:] = [os.path.join(root, d) for d in dirs]
             dirs[:] = [d for d in dirs if not re.match(excludes, d)]
         for name in files:
-            yield os.path.join(root, name)
+            fullpath = os.path.join(root, name)
+            if os.path.isfile(fullpath):
+                yield fullpath
 
 
 def getsize(fpath):
@@ -86,11 +118,21 @@ def find_large_files(fpath, n_results=10, **kwargs):
 
 
 def main():
+    """
+    So pylint will shut up about missing doc string.
+    """
 
     if args.find_empty_dirs:
-        for empty in find_empty_dirs(args.path):
-            print empty
-    sys.exit(0)
+        for index, empty in find_empty_dirs(args.path):
+            print index, empty
+        print("{} empty directories found in {}".format(index, args.path))
+        sys.exit(0)
+
+    if args.find_empty_files:
+        for index, empty in find_empty_files(args.path):
+            print index, empty
+        print "{} empty files found in {}".format(index, args.path)
+        sys.exit(0)
 
     # I create the options dict to shorten line 82.
     options = {'n_results': args.results, 'excludes':args.exclude}

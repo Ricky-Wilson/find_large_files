@@ -29,5 +29,9 @@ parser.add_argument(
     '--find-empty-dirs', action='store_true',  help='Find empty dirs',
     )
 
+parser.add_argument(
+    '--find-empty-files', action='store_true',  help='Find empty files',
+    )
+
 
 args = parser.parse_args()
