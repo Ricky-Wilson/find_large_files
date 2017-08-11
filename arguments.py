@@ -37,5 +37,13 @@ parser.add_argument(
     '--find-symlinks', action='store_true',  help='Find symlinks',
     )
 
+parser.add_argument(
+    '--find-by-ext', type=str,  help='List all files that have a file ext of ?',
+    )
+
+parser.add_argument(
+    '--find-duplicate-files', action='store_true',  help='Find duplicate files',
+    )
+
 
 args = parser.parse_args()

@@ -13,12 +13,45 @@ from itertools import islice
 import fnmatch
 import re
 import sys
+import hashlib
 
 # Third party imports.
 import scandir
 
 # Local project imports.
 from arguments import args
+
+DEFAULT_READSIZE = 4096
+
+def find_duplicate_files(fpath, read_size=DEFAULT_READSIZE):
+    """ Find duplicate files.
+    """
+
+    index = 0
+    unique = {}
+    read_size = 1000000
+
+    for dirpath, dirs, files in scandir.walk(fpath):
+        for _file in files:
+            fullpath = os.path.join(dirpath, _file)
+            if os.path.isfile(fullpath):
+                checksum = hashlib.md5()
+                try:
+                    with open(fullpath, 'rb') as fp:
+                        data = fp.read(read_size)
+                        while data:
+                            checksum.update(data)
+                            data = fp.read(read_size)
+                    filehash = checksum.hexdigest()
+
+                    if filehash not in unique:
+                        unique[filehash] = fullpath
+                    else:
+                        index += 1
+                        msg = "{}\n is a dublicate of \n{}\nTotal: {}"
+                        print msg.format(fullpath, unique[filehash], index)
+                except IOError:
+                    pass
 
 
 def is_empty(fpath):
@@ -33,6 +66,17 @@ def is_link(fpath):
         return os.path.islink(fpath)
     except OSError:
         pass
+
+
+def find_all_with_ext(fpath, ext):
+    """ Find all files that have a file ext.
+    """
+    index = 0
+    for dirpath, dirs, files in scandir.walk(fpath):
+        for _file in files:
+            if _file.endswith(ext):
+                index += 1
+                yield index, os.path.join(dirpath, _file)
 
 
 def find_empty_files(root_dir='.'):
@@ -162,7 +206,14 @@ def main():
             sys.exit(0)
         sys.exit(0)
 
+    if args.find_by_ext:
+        for index, fname in find_all_with_ext(args.path, args.find_by_ext):
+            print index, fname
+        sys.exit(0)
 
+    if args.find_duplicate_files:
+        find_duplicate_files(args.path)
+        sys.exit(0)
 
     # I create the options dict to shorten line 82.
     options = {'n_results': args.results, 'excludes':args.exclude}
