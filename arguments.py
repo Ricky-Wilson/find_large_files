@@ -33,5 +33,9 @@ parser.add_argument(
     '--find-empty-files', action='store_true',  help='Find empty files',
     )
 
+parser.add_argument(
+    '--find-symlinks', action='store_true',  help='Find symlinks',
+    )
+
 
 args = parser.parse_args()

@@ -28,6 +28,13 @@ def is_empty(fpath):
         pass
 
 
+def is_link(fpath):
+    try:
+        return os.path.islink(fpath)
+    except OSError:
+        pass
+
+
 def find_empty_files(root_dir='.'):
     """ Find empty files and yield there path.
     """
@@ -38,6 +45,18 @@ def find_empty_files(root_dir='.'):
             if is_empty(fullpath):
                 empty += 1
                 yield empty, fullpath
+
+
+def find_symlinks(root_dir='.'):
+    """ Find symbolic links and yield there path.
+    """
+    links = 0
+    for dirpath, dirs, files in scandir.walk(root_dir):
+        for _file in files:
+            fullpath = os.path.join(dirpath, _file)
+            if is_link(fullpath):
+                links += 1
+                yield links, fullpath
 
 
 def find_empty_dirs(root_dir='.'):
@@ -133,6 +152,17 @@ def main():
             print index, empty
         print "{} empty files found in {}".format(index, args.path)
         sys.exit(0)
+
+    if args.find_symlinks:
+        for index, link in find_symlinks(args.path):
+            print index, link
+        try:
+            print "{} symlinks found in {}".format(index, args.path)
+        except NameError:
+            sys.exit(0)
+        sys.exit(0)
+
+
 
     # I create the options dict to shorten line 82.
     options = {'n_results': args.results, 'excludes':args.exclude}
