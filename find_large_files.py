@@ -11,13 +11,19 @@ import operator
 from itertools import islice
 import fnmatch
 import re
-import argparse
 import scandir
+from arguments import args
+import sys
 
+
+def find_empty_dirs(root_dir='.'):
+    for dirpath, dirs, files in  scandir.walk(root_dir):
+        if not dirs and not files:
+            yield dirpath
 
 def take(number, iterable):
     """Return first n items of the iterable as a list.
-    
+
     :param number: `int` How many do you want to take.
     :param iterable: `iterable`
     :rtype: `list`
@@ -25,9 +31,14 @@ def take(number, iterable):
     return list(islice(iterable, number))
 
 
+def human_size(bytes, units=[' bytes','KB','MB','GB','TB', 'PB', 'EB']):
+    """ Returns a human readable string reprentation of bytes"""
+    return str(bytes) + units[0] if bytes < 1024 else human_size(bytes>>10, units[1:])
+
+
 def walk(fpath, **kwargs):
     ''' Traverse thru a directory tree.
-    
+
     :param fpath: `int` The root file path
     :param excludes: `list` optional directories to exclude
     :rtype: `generator`
@@ -48,8 +59,8 @@ def walk(fpath, **kwargs):
 def getsize(fpath):
     ''' Return the size of a file.
     Will return 0 if an OSError is raised.
-    :param fpath: `str` 
-    ''' 
+    :param fpath: `str`
+    '''
     try:
         return os.path.getsize(fpath)
     except OSError:
@@ -58,7 +69,7 @@ def getsize(fpath):
 
 def find_large_files(fpath, n_results=10, **kwargs):
     ''' Recursively find the largest files in a directory.
-    
+
     return n largest files in a directory tree.
     :param fpath: `str` where to start.
     :param n_results: `int` how many results to retrun.
@@ -73,24 +84,22 @@ def find_large_files(fpath, n_results=10, **kwargs):
     for name, size in take(n_results, results):
         yield name, size
 
+
 def main():
 
-    parser = argparse.ArgumentParser(description='Find large files')
-    parser.add_argument('path', metavar='-p', type=str, help='The path to start crawling')
-    parser.add_argument(
-        '--results', metavar='-n', type=int,
-        help='How many results to return the default is 10.',
-        default=10
-        )
-    parser.add_argument(
-        '--exclude', metavar='-e', type=list,
-        help='Directoris to exclude in the search.',
-        nargs='+', default=[]
-        )
-   
-    args = parser.parse_args()
-    for name, size in find_large_files(args.path, n_results=args.results, excludes=args.exclude):
-        print name, size
-    
+    if args.find_empty_dirs:
+        for empty in find_empty_dirs(args.path):
+            print empty
+    sys.exit(0)
+
+    # I create the options dict to shorten line 82.
+    options = {'n_results': args.results, 'excludes':args.exclude}
+    for name, size in find_large_files(args.path, **options):
+        if not args.human_readable:
+            print name, size
+        else:
+            print name, human_size(size)
+
+
 if __name__ == '__main__':
     main()
