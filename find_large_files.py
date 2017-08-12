@@ -58,11 +58,16 @@ def find_duplicate_files(fpath, read_size=DEFAULT_READSIZE):
                     pass
 
 
+def lastmodified(fpath):
+    paths = []
+    for dirpath, dirs, files in scandir.walk(fpath):
+        for name in files:
+            fullpath = os.path.join(dirpath, name)
+            if os.path.isfile(fullpath):
+                paths.append(fullpath)
+    for name in sorted(paths, key=os.path.getmtime):
+        print name
 
-#path = '/path/to/files/'
-#name_list = os.listdir(path)
-#full_list = [os.path.join(path,i) for i in name_list]
-#time_sorted_list = sorted(full_list, key=os.path.getmtime)
 
 def lastmodified(fpath):
     paths = []
@@ -71,7 +76,6 @@ def lastmodified(fpath):
             paths.append(os.path.join(dirpath, name))
     for name in sorted(paths, key=os.path.getmtime):
         print name
-
 
 
 def is_empty(fpath):
@@ -233,6 +237,10 @@ def main():
 
     if args.find_duplicate_files:
         find_duplicate_files(args.path)
+        sys.exit(0)
+
+    if args.lastmodified:
+        lastmodified(args.path)
         sys.exit(0)
 
     # I create the options dict to shorten line 82.

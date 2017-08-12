@@ -45,5 +45,9 @@ parser.add_argument(
     '--find-duplicate-files', action='store_true',  help='Find duplicate files',
     )
 
+parser.add_argument(
+    '--lastmodified', action='store_true',  help='list files by lastmodified time.',
+    )
+
 
 args = parser.parse_args()
