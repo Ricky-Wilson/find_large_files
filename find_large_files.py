@@ -69,15 +69,6 @@ def lastmodified(fpath):
         print name
 
 
-def lastmodified(fpath):
-    paths = []
-    for dirpath, dirs, files in scandir.walk(fpath):
-        for name in files:
-            paths.append(os.path.join(dirpath, name))
-    for name in sorted(paths, key=os.path.getmtime):
-        print name
-
-
 def is_empty(fpath):
     try:
         return os.stat(fpath).st_size == 0
