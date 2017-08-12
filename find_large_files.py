@@ -2,7 +2,7 @@
 
 ''' Mine filesystem information.
 Features:
-* Recursively find the largest files in a directory. 
+* Recursively find the largest files in a directory.
 * Recursively list all the symlinks in a directory.
 * Recursively list all duplicates in a directory.
 * Recursively list all empty files in a directory.
@@ -56,6 +56,22 @@ def find_duplicate_files(fpath, read_size=DEFAULT_READSIZE):
                         print msg.format(fullpath, unique[filehash], index)
                 except IOError:
                     pass
+
+
+
+#path = '/path/to/files/'
+#name_list = os.listdir(path)
+#full_list = [os.path.join(path,i) for i in name_list]
+#time_sorted_list = sorted(full_list, key=os.path.getmtime)
+
+def lastmodified(fpath):
+    paths = []
+    for dirpath, dirs, files in scandir.walk(fpath):
+        for name in files:
+            paths.append(os.path.join(dirpath, name))
+    for name in sorted(paths, key=os.path.getmtime):
+        print name
+
 
 
 def is_empty(fpath):
