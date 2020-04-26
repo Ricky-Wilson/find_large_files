@@ -234,7 +234,7 @@ def main():
         lastmodified(args.path)
         sys.exit(0)
 
-    # I create the options dict to shorten line 82.
+    # Create options dict to shorten line 82.
     options = {'n_results': args.results, 'excludes':args.exclude}
     for name, size in find_large_files(args.path, **options):
         if not args.human_readable:
